@@ -20,8 +20,8 @@ import api from '../../api/index';
 import { useAuth } from '../../context/AuthContext';
 
 export const Login: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('patient@cliniccare.com');
+  const [password, setPassword] = useState('Password123!');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,18 +38,10 @@ export const Login: React.FC = () => {
     setError('');
     setIsSubmitting(true);
     try {
-      const res = await api.post('/auth/login', {
-        email: targetEmail,
-        password: 'Password123!',
-      });
-
-      if (res.data.success) {
-        localStorage.setItem('token', res.data.token);
-        localStorage.setItem('user', JSON.stringify(res.data.user));
-        window.location.href = '/';
-      }
+      await login(targetEmail, 'Password123!');
+      window.location.href = '/';
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      setError(err.response?.data?.message || err.message || 'Login failed. Please try again.');
       setIsSubmitting(false);
     }
   };
@@ -59,18 +51,10 @@ export const Login: React.FC = () => {
     setError('');
     setIsSubmitting(true);
     try {
-      const res = await api.post('/auth/login', {
-        email,
-        password,
-      });
-
-      if (res.data.success) {
-        localStorage.setItem('token', res.data.token);
-        localStorage.setItem('user', JSON.stringify(res.data.user));
-        window.location.href = '/';
-      }
+      await login(email, password);
+      window.location.href = '/';
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Invalid email or password.');
+      setError(err.response?.data?.message || err.message || 'Invalid email or password.');
       setIsSubmitting(false);
     }
   };
