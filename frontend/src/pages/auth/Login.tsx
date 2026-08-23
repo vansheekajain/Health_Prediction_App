@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Activity,
@@ -17,33 +17,27 @@ import {
 import { useAuth } from '../../context/AuthContext';
 
 export const Login: React.FC = () => {
-  const [email, setEmail] = useState('patient@cliniccare.com');
-  const [password, setPassword] = useState('DoctorPatient#2026Care!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login } = useAuth();
+  const { user, login } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user || localStorage.getItem('token')) {
+      navigate('/', { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleDirectLogin = async (targetEmail: string) => {
     setError('');
     setIsSubmitting(true);
     try {
-      await login(targetEmail, 'DoctorPatient#2026Care!');
-      navigate('/');
+      await login(targetEmail);
+      window.location.href = '/';
     } catch (err: any) {
-      // Fallback try with previous passwords if database is on old seed
-      try {
-        await login(targetEmail, 'CuraPulse#2026!');
-        navigate('/');
-      } catch (err2: any) {
-        try {
-          await login(targetEmail, 'Password123!');
-          navigate('/');
-        } catch (err3: any) {
-          setError(err3.response?.data?.message || 'Login failed. Please check credentials or register a new account.');
-        }
-      }
-    } finally {
+      setError(err.response?.data?.message || 'Login failed. Please try again.');
       setIsSubmitting(false);
     }
   };
@@ -54,10 +48,9 @@ export const Login: React.FC = () => {
     setIsSubmitting(true);
     try {
       await login(email, password);
-      navigate('/');
+      window.location.href = '/';
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed. Please check credentials.');
-    } finally {
+      setError(err.response?.data?.message || 'Login failed. Please check credentials or register.');
       setIsSubmitting(false);
     }
   };
@@ -84,20 +77,26 @@ export const Login: React.FC = () => {
           </div>
         )}
 
-        {/* 1-Click Instant Enter Buttons */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-2xl border border-blue-100 space-y-2.5">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-blue-900 block text-center flex items-center justify-center gap-1">
-            <Zap className="w-3.5 h-3.5 text-amber-500 fill-current" />
-            1-Click Instant Login (No Prompts)
-          </span>
-          <div className="grid grid-cols-3 gap-2">
+        {/* 1-Click Instant Direct Enter */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-2xl border border-blue-200 space-y-3">
+          <div className="text-center">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-600 text-white rounded-full text-xs font-extrabold uppercase tracking-wider shadow-sm">
+              <Zap className="w-3.5 h-3.5 text-amber-300 fill-current" />
+              1-Click Instant Enter
+            </span>
+            <p className="text-[11px] text-slate-600 mt-1.5">
+              Click any role to enter instantly without typing passwords:
+            </p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 pt-1">
             <button
               type="button"
               disabled={isSubmitting}
               onClick={() => handleDirectLogin('patient@cliniccare.com')}
-              className="py-2.5 px-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-500/20 flex flex-col items-center gap-1 disabled:opacity-50"
+              className="py-3 px-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-blue-500/20 flex flex-col items-center gap-1 disabled:opacity-50"
             >
-              <User className="w-4 h-4" />
+              <User className="w-5 h-5" />
               <span>Patient</span>
             </button>
 
@@ -105,9 +104,9 @@ export const Login: React.FC = () => {
               type="button"
               disabled={isSubmitting}
               onClick={() => handleDirectLogin('doctor.jenkins@cliniccare.com')}
-              className="py-2.5 px-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-indigo-500/20 flex flex-col items-center gap-1 disabled:opacity-50"
+              className="py-3 px-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-indigo-500/20 flex flex-col items-center gap-1 disabled:opacity-50"
             >
-              <Stethoscope className="w-4 h-4" />
+              <Stethoscope className="w-5 h-5" />
               <span>Doctor</span>
             </button>
 
@@ -115,16 +114,16 @@ export const Login: React.FC = () => {
               type="button"
               disabled={isSubmitting}
               onClick={() => handleDirectLogin('admin@cliniccare.com')}
-              className="py-2.5 px-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-purple-500/20 flex flex-col items-center gap-1 disabled:opacity-50"
+              className="py-3 px-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-purple-500/20 flex flex-col items-center gap-1 disabled:opacity-50"
             >
-              <Shield className="w-4 h-4" />
+              <Shield className="w-5 h-5" />
               <span>Admin</span>
             </button>
           </div>
         </div>
 
         {/* Standard Manual Login Form */}
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit} autoComplete="off">
+        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
               Email Address
@@ -134,10 +133,9 @@ export const Login: React.FC = () => {
               <input
                 type="email"
                 required
-                autoComplete="off"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@domain.com"
+                placeholder="e.g. patient@cliniccare.com"
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
             </div>
@@ -152,9 +150,9 @@ export const Login: React.FC = () => {
               <input
                 type="password"
                 required
-                autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter password"
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
             </div>

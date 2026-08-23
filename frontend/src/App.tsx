@@ -14,56 +14,74 @@ import { DoctorDirectory } from './pages/patient/DoctorDirectory';
 import { MedicationTracker } from './pages/patient/MedicationTracker';
 import { PatientAppointments } from './pages/patient/PatientAppointments';
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRoles?: string[] }> = ({
+function ProtectedRoute({
   children,
   allowedRoles,
-}) => {
+}: {
+  children: React.ReactNode;
+  allowedRoles?: string[];
+}) {
   const { user, loading } = useAuth();
+  const token = localStorage.getItem('token');
+  const storedUser = localStorage.getItem('user');
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center">
-          <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-          <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Loading CuraPulse...</p>
-        </div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
-  if (!user) {
+  // If no user object in memory and no token in storage, redirect to login
+  if (!user && !token && !storedUser) {
     return <Navigate to="/login" replace />;
   }
 
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
+  const activeRole = user?.role || (storedUser ? JSON.parse(storedUser).role : null);
+
+  if (activeRole && allowedRoles && !allowedRoles.includes(activeRole)) {
     return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
-};
+}
 
-const RootRedirect: React.FC = () => {
-  const { user, loading } = useAuth();
+function RoleDefaultDashboard() {
+  const { user } = useAuth();
+  const storedUser = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null;
+  const role = user?.role || storedUser?.role || 'PATIENT';
 
-  if (loading) return null;
-  if (!user) return <Navigate to="/login" replace />;
+  if (role === 'DOCTOR') {
+    return <DoctorDashboard />;
+  }
+  if (role === 'ADMIN') {
+    return <AdminDashboard />;
+  }
+  return <DoctorDirectory />;
+}
 
-  if (user.role === 'DOCTOR') return <Navigate to="/doctor/dashboard" replace />;
-  if (user.role === 'ADMIN') return <Navigate to="/admin/dashboard" replace />;
-  return <Navigate to="/patient/doctors" replace />;
-};
-
-export const App: React.FC = () => {
+export function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <div className="min-h-screen flex flex-col bg-slate-50">
+    <BrowserRouter>
+      <AuthProvider>
+        <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
           <Navbar />
           <main className="flex-1">
             <Routes>
-              {/* Public Auth */}
+              {/* Public Authentication */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+
+              {/* Default Home Dashboard by Role */}
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <RoleDefaultDashboard />
+                  </ProtectedRoute>
+                }
+              />
 
               {/* Patient Routes */}
               <Route
@@ -127,7 +145,7 @@ export const App: React.FC = () => {
                 }
               />
               <Route
-                path="/admin/conflicts"
+                path="/admin/leaves"
                 element={
                   <ProtectedRoute allowedRoles={['ADMIN']}>
                     <LeaveConflictMonitor />
@@ -143,12 +161,14 @@ export const App: React.FC = () => {
                 }
               />
 
-              <Route path="/" element={<RootRedirect />} />
+              {/* Catch-all */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
         </div>
-      </BrowserRouter>
-    </AuthProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
-};
+}
+
+export default App;
