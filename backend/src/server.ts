@@ -25,6 +25,27 @@ if (config.nodeEnv === 'development') {
   });
 }
 
+// Root welcome endpoint for health monitors and browsers
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    service: 'CuraPulse - Healthcare Appointment & Follow-up Platform API',
+    status: 'online',
+    version: '1.0.0',
+    documentation: 'Access endpoints under /api',
+    endpoints: {
+      health: '/api/health',
+      doctors: '/api/doctors',
+      auth: '/api/auth',
+      appointments: '/api/appointments',
+      consultations: '/api/consultations',
+      leaves: '/api/leaves',
+      notifications: '/api/notifications',
+      admin: '/api/admin',
+    },
+  });
+});
+
 app.use('/api', routes);
 
 app.use(notFoundHandler);
