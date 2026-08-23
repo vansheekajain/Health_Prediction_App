@@ -80,3 +80,4 @@ describe('Doctor Leave Conflict Management & Auto-Cancellation', () => {
     expect(updated?.cancellationReason).toContain('Medical Conference');
   });
 });
+

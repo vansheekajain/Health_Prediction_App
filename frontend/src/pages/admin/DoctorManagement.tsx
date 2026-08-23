@@ -19,7 +19,7 @@ export const DoctorManagement: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    password: 'Password123!',
+    password: 'CuraPulse#2026!',
     phone: '',
     specialty: 'Cardiology',
     qualification: 'MD, FACC',

@@ -43,7 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [token]);
 
-  const login = async (email: string, password = 'Password123!') => {
+  const login = async (email: string, password = 'CuraPulse#2026!') => {
     const res = await api.post('/auth/login', { email, password });
     if (res.data.success) {
       const { token: newToken, user: newUser } = res.data;
@@ -64,7 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      await login(targetEmail, 'Password123!');
+      await login(targetEmail, 'CuraPulse#2026!');
     } catch (error) {
       console.error('Failed to switch persona:', error);
     } finally {

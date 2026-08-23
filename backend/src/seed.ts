@@ -23,7 +23,7 @@ async function main() {
   await prisma.doctorProfile.deleteMany();
   await prisma.user.deleteMany();
 
-  const commonPassword = await bcrypt.hash('Password123!', 10);
+  const commonPassword = await bcrypt.hash('CuraPulse#2026!', 10);
 
   const admin = await prisma.user.create({
     data: {

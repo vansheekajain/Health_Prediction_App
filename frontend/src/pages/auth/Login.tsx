@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState('patient@cliniccare.com');
-  const [password, setPassword] = useState('Password123!');
+  const [password, setPassword] = useState('CuraPulse#2026!');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { login } = useAuth();
@@ -27,7 +27,7 @@ export const Login: React.FC = () => {
 
   const handleQuickFill = (demoEmail: string) => {
     setEmail(demoEmail);
-    setPassword('Password123!');
+    setPassword('CuraPulse#2026!');
   };
 
   return (
