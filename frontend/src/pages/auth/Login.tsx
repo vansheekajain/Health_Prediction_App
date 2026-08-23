@@ -5,6 +5,8 @@ import {
   AlertCircle,
   ArrowRight,
   CheckCircle2,
+  Eye,
+  EyeOff,
   HeartPulse,
   Lock,
   Mail,
@@ -14,11 +16,13 @@ import {
   User,
   Zap,
 } from 'lucide-react';
+import api from '../../api/index';
 import { useAuth } from '../../context/AuthContext';
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user, login } = useAuth();
@@ -34,8 +38,16 @@ export const Login: React.FC = () => {
     setError('');
     setIsSubmitting(true);
     try {
-      await login(targetEmail);
-      window.location.href = '/';
+      const res = await api.post('/auth/login', {
+        email: targetEmail,
+        password: 'Password123!',
+      });
+
+      if (res.data.success) {
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+        window.location.href = '/';
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
       setIsSubmitting(false);
@@ -47,10 +59,18 @@ export const Login: React.FC = () => {
     setError('');
     setIsSubmitting(true);
     try {
-      await login(email, password);
-      window.location.href = '/';
+      const res = await api.post('/auth/login', {
+        email,
+        password,
+      });
+
+      if (res.data.success) {
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+        window.location.href = '/';
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed. Please check credentials or register.');
+      setError(err.response?.data?.message || 'Invalid email or password.');
       setIsSubmitting(false);
     }
   };
@@ -84,8 +104,8 @@ export const Login: React.FC = () => {
               <Zap className="w-3.5 h-3.5 text-amber-300 fill-current" />
               1-Click Instant Enter
             </span>
-            <p className="text-[11px] text-slate-600 mt-1.5">
-              Click any role to enter instantly without typing passwords:
+            <p className="text-[11px] text-slate-600 mt-1.5 font-medium">
+              Click any persona to log in immediately:
             </p>
           </div>
 
@@ -123,7 +143,7 @@ export const Login: React.FC = () => {
         </div>
 
         {/* Standard Manual Login Form */}
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+        <form className="mt-6 space-y-4" onSubmit={handleSubmit} autoComplete="off">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
               Email Address
@@ -148,13 +168,20 @@ export const Login: React.FC = () => {
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
           </div>
 

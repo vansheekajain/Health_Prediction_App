@@ -38,8 +38,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.setItem('user', JSON.stringify(res.data.user));
         }
       } catch (error) {
-        // Only clear if 401
-        console.warn('Session verification check failed');
+        console.warn('Session check failed');
       } finally {
         setLoading(false);
       }
@@ -52,18 +51,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [token]);
 
-  const login = async (email: string, password = 'DoctorPatient#2026Care!'): Promise<User> => {
-    let res;
-    try {
-      res = await api.post('/auth/login', { email, password });
-    } catch (e: any) {
-      // Fallback passwords for backwards compatibility
-      try {
-        res = await api.post('/auth/login', { email, password: 'Password123!' });
-      } catch (e2: any) {
-        res = await api.post('/auth/login', { email, password: 'CuraPulse#2026!' });
-      }
-    }
+  const login = async (email: string, password = 'Password123!'): Promise<User> => {
+    const res = await api.post('/auth/login', { email, password });
 
     if (res.data.success) {
       const { token: newToken, user: newUser } = res.data;
@@ -107,11 +96,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      await login(targetEmail);
+      await login(targetEmail, 'Password123!');
       window.location.href = '/';
     } catch (error) {
       console.error('Failed to switch persona:', error);
-      alert('Persona switch failed. Please try again.');
+      alert('Persona switch failed.');
     } finally {
       setLoading(false);
     }
