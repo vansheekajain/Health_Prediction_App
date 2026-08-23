@@ -21,11 +21,11 @@ services:
       - key: GEMINI_API_KEY
         sync: false
 
+staticSites:
   # ----------------------------------------------------
   # Frontend Static Site
   # ----------------------------------------------------
-  - type: static
-    name: curapulse-frontend
+  - name: curapulse-frontend
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
