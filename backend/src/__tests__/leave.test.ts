@@ -48,11 +48,12 @@ describe('Doctor Leave Conflict Management & Auto-Cancellation', () => {
   });
 
   afterAll(async () => {
-    await prisma.notificationLog.deleteMany({ where: { appointmentId: appointment.id } });
-    await prisma.appointment.deleteMany({ where: { doctorId: doctor.id } });
-    await prisma.doctorLeave.deleteMany({ where: { doctorId: doctor.id } });
-    await prisma.doctorProfile.deleteMany({ where: { id: doctor.id } });
-    await prisma.user.deleteMany({ where: { id: { in: [patient.id, doctor.userId] } } });
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    await prisma.notificationLog.deleteMany({ where: { appointmentId: appointment.id } }).catch(() => {});
+    await prisma.appointment.deleteMany({ where: { doctorId: doctor.id } }).catch(() => {});
+    await prisma.doctorLeave.deleteMany({ where: { doctorId: doctor.id } }).catch(() => {});
+    await prisma.doctorProfile.deleteMany({ where: { id: doctor.id } }).catch(() => {});
+    await prisma.user.deleteMany({ where: { id: { in: [patient.id, doctor.userId] } } }).catch(() => {});
   });
 
   it('correctly previews conflicting patient bookings', async () => {

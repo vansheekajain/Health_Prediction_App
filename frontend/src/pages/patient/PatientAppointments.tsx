@@ -244,3 +244,4 @@ export const PatientAppointments: React.FC = () => {
     </div>
   );
 };
+

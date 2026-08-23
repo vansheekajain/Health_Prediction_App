@@ -296,31 +296,29 @@ export async function bookAppointment(input: BookAppointmentInput) {
     return newAppointment;
   });
 
-  (async () => {
-    try {
-      const aiSummary = await generatePreVisitSummary(input.symptomsText);
-      const preSummary = await prisma.preVisitSummary.create({
-        data: {
-          appointmentId: appointment.id,
-          symptomsText: input.symptomsText,
-          urgencyLevel: aiSummary.urgencyLevel,
-          chiefComplaint: aiSummary.chiefComplaint,
-          suggestedQuestions: JSON.stringify(aiSummary.suggestedQuestions),
-          triageNotes: aiSummary.triageNotes,
-          rawAiResponse: JSON.stringify(aiSummary),
-        },
-      });
+  try {
+    const aiSummary = await generatePreVisitSummary(input.symptomsText);
+    const preSummary = await prisma.preVisitSummary.create({
+      data: {
+        appointmentId: appointment.id,
+        symptomsText: input.symptomsText,
+        urgencyLevel: aiSummary.urgencyLevel,
+        chiefComplaint: aiSummary.chiefComplaint,
+        suggestedQuestions: JSON.stringify(aiSummary.suggestedQuestions),
+        triageNotes: aiSummary.triageNotes,
+        rawAiResponse: JSON.stringify(aiSummary),
+      },
+    }).catch(() => null);
 
-      const fullAppointment = {
-        ...appointment,
-        preVisitSummary: preSummary,
-      };
+    const fullAppointment = {
+      ...appointment,
+      preVisitSummary: preSummary,
+    };
 
-      await sendBookingConfirmationNotification(fullAppointment);
-    } catch (bgError) {
-      console.error('[Booking Post-Processing Error]:', bgError);
-    }
-  })();
+    await sendBookingConfirmationNotification(fullAppointment).catch(() => {});
+  } catch (bgError) {
+    console.error('[Booking Post-Processing Error]:', bgError);
+  }
 
   return appointment;
 }

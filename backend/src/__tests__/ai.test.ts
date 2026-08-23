@@ -27,3 +27,4 @@ describe('AI Pre-Visit Triage & Post-Visit Summary Service', () => {
     expect(result.lifestyleAdvice.length).toBeGreaterThan(0);
   });
 });
+

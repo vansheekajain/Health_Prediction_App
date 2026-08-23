@@ -118,3 +118,4 @@ describe('Slot Calculation & Concurrency Double-Booking Protection', () => {
     expect(rejected.length).toBe(1);
   });
 });
+

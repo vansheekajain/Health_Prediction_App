@@ -4210,3 +4210,4 @@ services:
 `);
 
 console.log('✅ All source code and config files populated successfully!');
+

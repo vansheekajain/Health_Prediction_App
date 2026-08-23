@@ -66,8 +66,11 @@ export async function sendNotificationEmail(options: SendEmailOptions): Promise<
         htmlContent: options.htmlContent,
         status: 'PENDING',
       },
-    });
-    logId = log.id;
+    }).catch(() => null);
+
+    if (log) {
+      logId = log.id;
+    }
 
     const mailer = await getTransporter();
     const mailOptions: nodemailer.SendMailOptions = {
@@ -93,13 +96,15 @@ export async function sendNotificationEmail(options: SendEmailOptions): Promise<
       console.log(`[Notification Service] 📧 Email Preview URL (${options.type}): ${previewUrl}`);
     }
 
-    await prisma.notificationLog.update({
-      where: { id: logId },
-      data: {
-        status: 'SENT',
-        sentAt: new Date(),
-      },
-    });
+    if (logId) {
+      await prisma.notificationLog.update({
+        where: { id: logId },
+        data: {
+          status: 'SENT',
+          sentAt: new Date(),
+        },
+      }).catch(() => {});
+    }
 
     return true;
   } catch (error: any) {
@@ -113,7 +118,7 @@ export async function sendNotificationEmail(options: SendEmailOptions): Promise<
           retryCount: { increment: 1 },
           lastError: error.message || 'Unknown mailer error',
         },
-      });
+      }).catch(() => {});
     }
 
     return false;
@@ -150,7 +155,7 @@ export async function processNotificationRetryQueue(): Promise<void> {
           sentAt: new Date(),
           retryCount: { increment: 1 },
         },
-      });
+      }).catch(() => {});
     } catch (error: any) {
       await prisma.notificationLog.update({
         where: { id: log.id },
@@ -158,16 +163,18 @@ export async function processNotificationRetryQueue(): Promise<void> {
           retryCount: { increment: 1 },
           lastError: error.message || 'Retry failed',
         },
-      });
+      }).catch(() => {});
     }
   }
 }
 
 export async function sendBookingConfirmationNotification(appointment: any): Promise<void> {
   const patient = appointment.patient;
-  const doctor = appointment.doctor.user;
-  const specialty = appointment.doctor.specialty;
+  const doctor = appointment.doctor?.user || appointment.doctor;
+  const specialty = appointment.doctor?.specialty || 'Medical Specialist';
   const preSummary = appointment.preVisitSummary;
+
+  if (!patient || !doctor) return;
 
   const calPayload = {
     title: `Consultation: Dr. ${doctor.name} & ${patient.name}`,
@@ -250,8 +257,10 @@ export async function sendLeaveCancellationNotification(
   leaveReason?: string
 ): Promise<void> {
   const patient = appointment.patient;
-  const doctor = appointment.doctor.user;
+  const doctor = appointment.doctor?.user || appointment.doctor;
   const rebookUrl = `${config.frontendUrl}/patient/doctors`;
+
+  if (!patient || !doctor) return;
 
   const html = `
     <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #fee2e2; border-radius: 12px; overflow: hidden; background: #ffffff;">
@@ -288,10 +297,10 @@ export async function sendLeaveCancellationNotification(
 
 export async function sendPostVisitNotification(appointment: any): Promise<void> {
   const patient = appointment.patient;
-  const doctor = appointment.doctor.user;
+  const doctor = appointment.doctor?.user || appointment.doctor;
   const record = appointment.postVisitRecord;
 
-  if (!record) return;
+  if (!record || !patient || !doctor) return;
 
   const prescriptions = JSON.parse(record.prescriptions || '[]');
   const followUpSteps = JSON.parse(record.followUpSteps || '[]');

@@ -79,3 +79,4 @@ The platform integrates Gemini 1.5 Flash with deterministic clinical heuristics 
 2. **Audit Logging & Retry Queue**:
    - Every email attempt is logged to the `NotificationLog` table.
    - Failures are tagged with `status = 'FAILED'` and processed by a cron worker running every 5 minutes with exponential backoff (up to 3 retries).
+

@@ -50,3 +50,4 @@ npm test
 1. Push your repository to GitHub.
 2. In [Render Dashboard](https://render.com), click **New + > Blueprint**.
 3. Select your repository. Render automatically provisions the API Web Service and Vite Static Site using [`render.yaml`](./render.yaml).
+

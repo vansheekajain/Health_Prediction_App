@@ -260,3 +260,4 @@ export const DoctorManagement: React.FC = () => {
     </div>
   );
 };
+

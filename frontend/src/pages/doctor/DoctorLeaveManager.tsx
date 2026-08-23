@@ -243,3 +243,4 @@ export const DoctorLeaveManager: React.FC = () => {
     </div>
   );
 };
+

@@ -138,3 +138,4 @@ export const NotificationLogs: React.FC = () => {
     </div>
   );
 };
+
