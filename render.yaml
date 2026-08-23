@@ -24,7 +24,7 @@ services:
   # ----------------------------------------------------
   # Frontend Static Site
   # ----------------------------------------------------
-  - type: static_site
+  - type: static
     name: curapulse-frontend
     rootDir: frontend
     buildCommand: npm install && npm run build
