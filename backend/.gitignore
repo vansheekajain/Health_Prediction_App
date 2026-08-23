@@ -1,0 +1,21 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Compiled code
+dist/
+
+# SQLite Database
+*.db
+*.db-journal
+dev.db
+dev.db-journal
+
+# Logs
+*.log
+npm-debug.log*
+
