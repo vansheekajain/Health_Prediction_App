@@ -84,12 +84,12 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     message: 'User registered successfully',
     token,
     user: {
-      id: fullUser!.id,
-      email: fullUser!.email,
-      name: fullUser!.name,
-      role: fullUser!.role,
-      phone: fullUser!.phone,
-      doctorProfileId: fullUser!.doctorProfile?.id || null,
+      id: fullUser.id,
+      email: fullUser.email,
+      name: fullUser.name,
+      role: fullUser.role,
+      phone: fullUser.phone,
+      doctorProfileId: fullUser.doctorProfile?.id || null,
     },
   });
 };
